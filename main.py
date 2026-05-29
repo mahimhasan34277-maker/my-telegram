@@ -1,9 +1,7 @@
 import os
 import asyncio
-import logging
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
-import telebot
 from telebot.async_telebot import AsyncTeleBot
 
 # Config
@@ -13,30 +11,28 @@ BOT_TOKEN = "8839286449:AAEBGJHmPDY4_FAddCA9uVgtz5fXOqBoLXg"
 SOURCE_CHANNEL = -1003280015883
 OWNER_ID = 7034610665
 
-# Render এর Environment Variable থেকে সেশন স্ট্রিং নিবে
+# সেশন স্ট্রিং এনভায়রনমেন্ট থেকে নিবে
 SESSION_STRING = os.environ.get("SESSION_STRING", "")
 
 bot = AsyncTeleBot(BOT_TOKEN)
 
-async def start_bot():
+async def start_scraper():
     if not SESSION_STRING:
-        print("ERROR: SESSION_STRING পাওয়া যায়নি!")
+        print("SESSION_STRING খালি!")
         return
-        
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.connect()
     
     @client.on(events.NewMessage(chats=SOURCE_CHANNEL))
     async def handler(event):
         txt = event.message.text
-        # আপনার ফিল্টার
         if "Used PayPal: No" in txt and "Used Google: No" in txt and "Registered: False" in txt:
-            await bot.send_message(OWNER_ID, f"🚨 Match Found:\n{txt}")
+            await bot.send_message(OWNER_ID, f"✅ Match Found:\n{txt}")
 
     await client.run_until_disconnected()
 
 async def main():
-    await asyncio.gather(bot.polling(), start_bot())
+    await asyncio.gather(bot.polling(), start_scraper())
 
 if __name__ == "__main__":
     asyncio.run(main())
